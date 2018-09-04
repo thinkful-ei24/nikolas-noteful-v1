@@ -14,12 +14,28 @@ const app = express();
 
 app.use(express.static('public'));
 
-app.get('/api/notes', (req, res) => {
-  res.json(data);
-});
+
 // ADD STATIC SERVER HERE
 
+app.get('/api/notes/:id', (req, res)=> {
+   
+   const id = req.params.id;
+   let obj = data.find(item => item.id === Number(id));
+   return res.send(obj);
+});
 
+app.get('/api/notes', (req, res) => {
+    
+    const searchTerm = req.query.searchTerm;
+    if (searchTerm) {
+    let filteredList = data.filter(function(item) {
+      return item.title.includes(searchTerm);
+    });
+    res.json(filteredList);
+  } else {
+    res.json(data);
+  }
+});
 
 app.listen(8080, function () {
   console.info(`Server listening on ${this.address().port}`);

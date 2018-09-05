@@ -12,7 +12,7 @@ const data = require('./db/notes');
 
 const app = express();
 
-app.use(express.static('public'));
+app.use('/', express.static('public'));
 
 
 // ADD STATIC SERVER HERE

@@ -10,6 +10,9 @@ const express = require('express');
 
 const data = require('./db/notes');
 
+const simDB = require('./db/simDB');  // <<== add this
+const notes = simDB.initialize(data); // <<== and this
+
 const app = express();
 
 app.use('/', express.static('public'));  //.use is a way of saying run this middleware function on everything request run through
@@ -33,16 +36,15 @@ app.get('/api/notes/:id', (req, res)=> {
 
 app.get('/api/notes', (req, res) => {
     
-  const searchTerm = req.query.searchTerm;
-  if (searchTerm) {
-    let filteredList = data.filter(function(item) {
-      return item.title.includes(searchTerm);
-    });
-    res.json(filteredList);
-  } else {
-    res.json(data);
-  }
+  const { searchTerm } = req.query;
+  notes.filter(searchTerm, (err, list) => {
+    if (err) {
+      return next(err); // goes to error handler
+    }
+    res.json(list); // responds with filtered array
+  });
 });
+
 
 app.get('/boom', (req, res, next) => {
   throw new Error('Boom!!');

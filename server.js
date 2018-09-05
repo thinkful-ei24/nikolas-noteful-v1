@@ -27,14 +27,26 @@ console.log('hello');
 
 // ADD STATIC SERVER HERE
 
-app.get('/api/notes/:id', (req, res)=> {
+app.get('/api/notes/:id', (req, res, next)=> {
    
   const id = req.params.id;
-  let obj = data.find(item => item.id === Number(id));
-  return res.send(obj);
+  notes.find(id, (err, item) => {
+    if (err) {
+      console.log(err);
+    } 
+    if (item) {
+      console.log(item);
+      return res.send(item);
+    }
+    else {
+      next();
+    }
+    
+  });
+  
 });
 
-app.get('/api/notes', (req, res) => {
+app.get('/api/notes', (req, res, next) => {
     
   const { searchTerm } = req.query;
   notes.filter(searchTerm, (err, list) => {

@@ -4,6 +4,14 @@ const logger = function(req, res, next) {
   next();
 }
 
+
+const sayHi = function () {
+    console.log("hello");
+}
+
+
+
 module.exports = {
     logger,
+    sayHi
 }

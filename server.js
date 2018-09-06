@@ -15,12 +15,21 @@ const notes = simDB.initialize(data); // <<== and this
 
 const app = express();
 
+const { logger, sayHi } = require('./middleware/logger');
+
+const morgan = require('morgan');
+
+
+app.use(morgan('dev'));  //when destructuring is this making it a function without need of ()?
+
 app.use('/', express.static('public'));  //.use is a way of saying run this middleware function on everything request run through
+app.use(express.json());
 
-const { logger } = require('./middleware/logger');
 
 
-app.use(logger);
+
+
+
 
 const { PORT } = require('./config');
 console.log('hello');
@@ -46,21 +55,61 @@ app.get('/api/notes/:id', (req, res, next)=> {
   
 });
 
-app.get('/api/notes', (req, res, next) => {
-    
-  const { searchTerm } = req.query;
-  notes.filter(searchTerm, (err, list) => {
-    if (err) {
-      return next(err); // goes to error handler
+app.delete('/api/notes/:id', (req, res, next) => {
+  const {id} = req.params;
+  console.log(id);
+  notes.delete(id, (err, success) => {
+    if(err) {
+      return next(err);
     }
-    res.json(list); // responds with filtered array
+    if(success) {
+      console.log("The item was deleted!");
+    }
   });
 });
 
-
-app.get('/boom', (req, res, next) => {
-  throw new Error('Boom!!');
+app.get('/api/notes', (req, res, next) => {
+    
+  const { searchTerm } = req.query;
+  notes.filter(searchTerm, (err, list) => { //why is err first here
+    if (err) {
+      return next(err); // goes to error handler
+    } 
+    if (list) {
+      res.json(list); // responds with filtered array
+    }
+    else {
+      next();
+    }
+  });
+  
 });
+
+app.put('/api/notes/:id', (req, res, next) => {
+  const id = req.params.id;
+
+  /***** Never trust users - validate input *****/
+  const updateObj = {};
+  const updateFields = ['title', 'content'];
+
+  updateFields.forEach(field => {
+    if (field in req.body) {
+      updateObj[field] = req.body[field];
+    }
+  });
+
+  notes.update(id, updateObj, (err, item) => {
+    if (err) {
+      return next(err);
+    }
+    if (item) {
+      res.json(item);
+    } else {
+      next();
+    }
+  });
+});
+
 
 app.use(function (req, res, next) {
   let err = new Error('Not Found');

@@ -42,9 +42,23 @@ router.delete('/api/notes/:id', (req, res, next) => {
       next();
     }
   });
-  
 });
   
+router.post('/api/notes/', (req, res, next) => {
+  let obj = req.body;
+
+  notes.create(obj, (err, obj) =>{
+    if(err) {
+      next(err);
+    }
+    if(obj) {
+      res.json(obj);
+    }
+    else {
+      next();
+    }
+  });
+});
   
   
 router.get('/api/notes', (req, res, next) => {

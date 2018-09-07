@@ -17,7 +17,7 @@ const notesRouter = require('./router/notes.router');
 
 
 app.use(morgan('dev'));  //when destructuring is this making it a function without need of ()?
-app.use(express.json());
+app.use(express.json()); //initialize jsonPARSER
 app.use(notesRouter);
 
 app.use('/', express.static('public'));  //.use is a way of saying run this middleware function on everything request run through
